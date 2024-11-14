@@ -1,13 +1,13 @@
 from typing import Dict, List, Optional
 import logging
 from database.vector_store import VectorStore
-from api.groq_client import GroqClient
+from api.ollama_client import OllamaClient
 from config.prompts import QUERY_PROMPTS
 
 class QueryAgent:
-    def __init__(self, vector_store: VectorStore, groq_client: GroqClient):
+    def __init__(self, vector_store: VectorStore, ollama_client: OllamaClient):
         self.vector_store = vector_store
-        self.groq_client = groq_client
+        self.ollama_client = ollama_client
         self.logger = logging.getLogger(__name__)
         self.query_history = []
 
@@ -15,7 +15,7 @@ class QueryAgent:
         """Analyze the user's query intent using LLM."""
         try:
             prompt = QUERY_PROMPTS['intent_analysis'].format(query=query)
-            response = self.groq_client.generate_response(prompt)
+            response = self.ollama_client.generate_response(prompt)
             
             # Parse the structured response
             intent = eval(response)  # Safe since we control the LLM prompt
@@ -82,7 +82,7 @@ Likes: {product['metadata'].get('likes_count', 0)}
         )
         
         try:
-            response = self.groq_client.generate_response(prompt)
+            response = self.ollama_client.generate_response(prompt)
             return response
         except Exception as e:
             self.logger.error(f"Error generating response: {str(e)}")

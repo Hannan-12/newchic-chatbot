@@ -4,7 +4,7 @@ from pathlib import Path
 import logging
 from dataclasses import dataclass
 import json
-from api.groq_client import GroqClient
+from api.ollama_client import OllamaClient
 from config.prompts import SCHEMA_ANALYSIS_PROMPT
 
 @dataclass
@@ -17,8 +17,8 @@ class ColumnInfo:
     description: str
 
 class SchemaAnalyzer:
-    def __init__(self, groq_client: GroqClient):
-        self.groq_client = groq_client
+    def __init__(self, ollama_client: OllamaClient):
+        self.ollama_client = ollama_client
         self.logger = logging.getLogger(__name__)
 
     def analyze_column(self, df: pd.DataFrame, column: str) -> ColumnInfo:
@@ -37,7 +37,7 @@ class SchemaAnalyzer:
         """Generate a description for a column using LLM."""
         sample_data = series.head(5).tolist()
         prompt = f"Describe this data column with samples: {sample_data}"
-        response = self.groq_client.generate_response(prompt)
+        response = self.ollama_client.generate_response(prompt)
         return response
 
     def analyze_csv(self, file_path: Path) -> Dict:
@@ -87,7 +87,7 @@ class SchemaAnalyzer:
         }
         
         prompt = SCHEMA_ANALYSIS_PROMPT.format(schema=json.dumps(schema_info, indent=2))
-        response = self.groq_client.generate_response(prompt)
+        response = self.ollama_client.generate_response(prompt)
         return response
 
     def analyze_directory(self, directory_path: str) -> Dict[str, Dict]:
